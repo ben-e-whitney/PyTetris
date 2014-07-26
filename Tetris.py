@@ -171,7 +171,9 @@ class Tetris:
         """
         if self.playing:
             vals = self._get_translated(self._falling, dx=1, dy=0)
-            if not vals and self.playing:
+            #`_get_translated` might have changed the value of `self.playing`.
+            #TODO: will `_process_bottom` ever change `self.playing`?
+            if self.playing and not vals:
                 self._process_bottom()
             if self.playing and vals:
                 self._falling.rects = vals
@@ -283,11 +285,13 @@ class Tetris:
         """
         Draw a game piece rectangle 
         """
-        rect = canvas.create_rectangle(Tetris.row_zero + y * Tetris.box_size + pady,
-                                       Tetris.col_zero + x * Tetris.box_size + padx,
-                                       Tetris.row_zero + y * Tetris.box_size + Tetris.box_size + pady,
-                                       Tetris.col_zero + x * Tetris.box_size + Tetris.box_size + padx,
-                                       fill = color, outline = 'black')
+        rect = canvas.create_rectangle(
+            Tetris.row_zero + y * Tetris.box_size + pady,
+            Tetris.col_zero + x * Tetris.box_size + padx,
+            Tetris.row_zero + y * Tetris.box_size + Tetris.box_size + pady,
+            Tetris.col_zero + x * Tetris.box_size + Tetris.box_size + padx,
+            fill = color, outline = 'black'
+        )
 
         self.canvas.pack()
         canvas.itemconfig(rect, tags = tag)
