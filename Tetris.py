@@ -1,6 +1,8 @@
 import random, copy
 from Tkinter   import *
 
+def ensure_playing
+
 class Tetris:
 
     box_size    = 20
@@ -10,8 +12,8 @@ class Tetris:
     game_height = rows * box_size
     x_margin    = 2 * box_size
     y_margin    = 2 * box_size
-    win_width   = str(2 * x_margin + game_width + 120)
-    win_height  = str(2 * y_margin + game_height)
+    win_width   = 2 * x_margin + game_width + 120
+    win_height  = 2 * y_margin + game_height
     col_zero    = x_margin
     row_zero    = y_margin
     
@@ -33,7 +35,8 @@ class Tetris:
     
     def __init__(self):
         self.root = Tk()
-        self.root.geometry(Tetris.win_width + 'x' + Tetris.win_height)
+        self.root.geometry('{width}x{height}'.format(width=Tetris.win_width,
+                                                     height=Tetris.win_height))
         self.root.resizable(width = False, height = False)
         self.root.title('Tetris')
         self.root.bind('<Up>',    self._on_up)
