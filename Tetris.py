@@ -1,7 +1,14 @@
 import random, copy
 from Tkinter   import *
 
-def ensure_playing
+def ensure_playing(f):
+    def inner(self, *args, **kwargs):
+        if not self.playing:
+            return None
+        else:
+            return f(self, *args, **kwargs)
+    return inner
+
 
 class Tetris:
 
@@ -102,61 +109,54 @@ class Tetris:
             y0 = -1 + Tetris.cols / 2.0
         piece.rects = [(x + x0, y + y0) for x, y in piece.rects]
     
+    @ensure_playing
     def _on_up(self, event):
         """
         Handle up click 
             - Rotate the piece if possible 
         """
-        if not self.playing:
-            return 
         vals = self._get_rotated(self._falling)
         if vals:
             self._falling.rects = vals
 
+    @ensure_playing
     def _on_down(self, event):
         """
         Handle down click 
             - Move piece all the way to bottom if possible 
         """
-        if not self.playing:
-            return
-        
         while True:
             vals = self._get_translated(self._falling, dx=1, dy=0)
             if not vals:
                 break 
             self._falling.rects = vals
             
+    @ensure_playing
     def _on_left(self, event):
         """
         Handle left click
             - Should move falling piece one unit left if possible
         """
-        if not self.playing:
-            return 
         vals = self._get_translated(self._falling, dx=0, dy=-1)
         if vals:
             self._falling.rects = vals
 
+    @ensure_playing
     def _on_right(self, event):
         """
         Handle right click
             - Should move falling piece one unit right if possible 
         """
-        if not self.playing:
-            return 
         vals = self._get_translated(self._falling, dx=0, dy= 1)
         if vals:
             self._falling.rects = vals
 
+    @ensure_playing
     def _on_space(self, event):
         """
         Handle spacebar click
             - Should pause or unpause the game depending on state of self.paused
         """
-        if not self.playing:
-            return
-        
         self.paused = not self.paused
         if self.paused:
             self._refresh_falling()
@@ -278,12 +278,11 @@ class Tetris:
             tmp.append((u, v))
         return tmp
 
+    @ensure_playing
     def _draw_rectangle(self, x, y, color, tag, canvas, padx = 0, pady = 0):
         """
         Draw a game piece rectangle 
         """
-        if not self.playing:
-            return
         rect = canvas.create_rectangle(Tetris.row_zero + y * Tetris.box_size + pady,
                                        Tetris.col_zero + x * Tetris.box_size + padx,
                                        Tetris.row_zero + y * Tetris.box_size + Tetris.box_size + pady,
@@ -293,12 +292,11 @@ class Tetris:
         self.canvas.pack()
         canvas.itemconfig(rect, tags = tag)
 
+    @ensure_playing
     def _refresh_bottom(self):
         """
         Update bottom, each time falling piece hits bottom
         """
-        if not self.playing:
-            return 
         self.canvas.delete('bottom')
         for x, y in self.bottom:
             color = self.bottom[x, y]
@@ -306,38 +304,35 @@ class Tetris:
 
         self.root.after(200, self._refresh_falling)
 
+    @ensure_playing
     def _refresh_falling(self):
         """
         Update the current falling piece
             - Should only be called every 'self.gravity' miliseconds
         """
-        if not self.playing:
-            return
         self.canvas.delete('falling')
         for x, y in self._falling.rects:
             self._draw_rectangle(x, y, self._falling.color, 'falling', self.canvas)
         
         self.root.after(200, self._refresh_falling)
 
+    @ensure_playing
     def _refresh_score(self):
         """
         Update the game score, if we've completed a row
             - Should only be called when we have a complete row
         """
-        if not self.playing:
-            return 
         horiz = Tetris.col_zero + Tetris.box_size * Tetris.cols + 20
         Label(self.canvas, text='Score: ' + str(self.score), fg = 'white', bg = 'black').place(y=Tetris.y_margin, x=horiz)
         if self.score > 0 and self.score % 200 == 0:
             self.gravity -= 100
             
+    @ensure_playing
     def _refresh_next(self):        
         """
         Update the next piece in the right most part of the canvas
             - Should only be called when we've hit bottom
         """
-        if not self.playing:
-            return
         self.canvas.delete('next_piece')
         next_copy = copy.deepcopy(self._next_piece)
         horiz = Tetris.col_zero + Tetris.box_size * Tetris.cols + 20
